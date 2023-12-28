@@ -1,25 +1,40 @@
 import os
+import json
 import uvicorn
 from fastapi import Request, FastAPI, Response
+from google.cloud import storage
 
 app = FastAPI(title = "S2DR3")
 
 AIP_HEALTH_ROUTE = os.environ.get("AIP_HEALTH_ROUTE", "/health")
 AIP_PREDICT_ROUTE = os.environ.get("AIP_PREDICT_ROUTE", "/predict")
 
+def upload_to_bucket(blob_name, path_to_file, bucket_name):
+    storage_client = storage.Client.from_service_account_json(
+        'credentials.json'
+    )
+    bucket = storage_client.get_bucket(bucket_name)
+    blob = bucket.blob(blob_name)
+    blob.upload_from_filename(path_to_file)
+
+    return blob.public_url
+
+def write_content_to_file(file_name, str_content):
+    with open(file_name, "w") as file:
+        file.write(str_content)
+
 @app.get(AIP_HEALTH_ROUTE, status_code = 200)
 async def health():
-    return {"health": "ok"}
+    str_content = "My name is James"
+    write_content_to_file("data.txt", str_content)
+    uploaded_url = upload_to_bucket("data.txt", "data.txt", "test_bucket")
+    return "success"
 
 @app.post(AIP_PREDICT_ROUTE)
 async def predict(request: Request):
     body = await request.json()
-    print(body)
-
-    instances = body["instances"]
-    print(instances)
-
-    return instances
-
+    write_content_to_file("data.txt", json.dumps(body))
+    uploaded_url = upload_to_bucket("data.txt", "data.txt", "test_bucket")
+    return uploaded_url
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port = 8080)

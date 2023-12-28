@@ -1,4 +1,5 @@
 import os
+import uvicorn
 from fastapi import Request, FastAPI, Response
 
 app = FastAPI(title = "S2DR3")
@@ -21,4 +22,4 @@ async def predict(request: Request):
     return instances
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port = 8080)
+    uvicorn.run(app, host="0.0.0.0", port = 8080)

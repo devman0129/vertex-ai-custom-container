@@ -25,16 +25,15 @@ def write_content_to_file(file_name, str_content):
 
 @app.get(AIP_HEALTH_ROUTE, status_code = 200)
 async def health():
-    str_content = "My name is James"
-    write_content_to_file("data.txt", str_content)
-    uploaded_url = upload_to_bucket("data.txt", "data.txt", "test_bucket")
-    return "success"
+    return {
+        "response" : "ok"
+    }
 
 @app.post(AIP_PREDICT_ROUTE)
 async def predict(request: Request):
     body = await request.json()
     write_content_to_file("data.txt", json.dumps(body))
-    uploaded_url = upload_to_bucket("data.txt", "data.txt", "test_bucket")
+    uploaded_url = upload_to_bucket("output/data.txt", "data.txt", "s2dr3-202312")
     return uploaded_url
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port = 8080)

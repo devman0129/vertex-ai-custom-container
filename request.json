@@ -1,0 +1,12 @@
+{
+    "instances": [
+        {
+            "first_key": "first value",
+            "second_key": "second value"
+        },
+        {
+            "first_key": "first value 2",
+            "second_key": "second value 2"
+        }
+    ]
+}
